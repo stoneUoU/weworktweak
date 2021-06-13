@@ -1,0 +1,10 @@
+Package: com.stone.wwtweak
+Name: wwtweak
+Architecture: iphoneos-arm
+Description: An awesome MobileSubstrate tweak!
+Maintainer: stone
+Author: stone
+Section: Tweaks
+Depends: mobilesubstrate (>= 0.9.5000)
+Version: 0.0.1-50+debug
+Installed-Size: 184
