@@ -1,17 +1,26 @@
 #import <UIKit/UIKit.h>
 #import "src/YLZLocationManager.h"
 
-//其它位置:
-// static NSString *latitudeString = @"24.497288808694895";
-// static NSString *longitudeString = @"118.17793642306556";
-
 
 #define YLZDefaults [NSUserDefaults standardUserDefaults]
 #define YLZKey @"switch_isOpen"
+#define YLZSiteKey0 @"switch_isOpen0"
+#define YLZSiteKey1 @"switch_isOpen1"
+#define YLZSiteKey2 @"switch_isOpen2"
 
 //易联众信息技术股份有限公司位置:
-static NSString *latitudeString = @"24.48606";
-static NSString *longitudeString = @"118.17863";
+// static NSString *latitudeString = @"24.48591012";
+// static NSString *longitudeString = @"118.17774973";
+
+
+//SM城市广场(宝岛眼镜):
+// static NSString *latitudeString = @"24.50076200";
+// static NSString *longitudeString = @"118.12739500";
+
+//厦门北站:
+// static NSString *latitudeString = @"24.63589400";
+// static NSString *longitudeString = @"118.07418400";
+
 
 @interface WWKAttendanceBinaryCheckViewController : UIViewController
 
@@ -41,6 +50,8 @@ static NSString *longitudeString = @"118.17863";
 
 @interface WWKApplicationPageController : UIViewController
 
+- (UITableViewCell *)fireTableViewCellWith:(NSString *)cellId withSwitchOn:(BOOL)switchOn withTitleString:(NSString *)titleString withTag:(NSInteger)tag withTableView:(UITableView *)tableView;
+
 @end
 
 
@@ -48,15 +59,16 @@ static NSString *longitudeString = @"118.17863";
 
 - (void)viewDidLoad {
     %orig;
+    NSString *latitudeString = @"24.48591012";
+    NSString *longitudeString = @"118.17774973";
     [YLZLocationManager shareInstance].coordinate = CLLocationCoordinate2DMake([latitudeString doubleValue], [longitudeString doubleValue]);
     [YLZLocationManager shareInstance].isOpen = [YLZDefaults boolForKey:YLZKey];
-    NSLog(@"-----------------viewDidLoad--------------------------");
 }
 
 // 一共有多少组
 - (long long)numberOfSectionsInTableView:(id)tableView
 {
-    return 2;
+    return 4;
 }
 
 // 每一组有多少行
@@ -64,41 +76,105 @@ static NSString *longitudeString = @"118.17863";
 {
     if (section == 0) {
         return 0;
-    } else {
-        return 2;
+    } else if (section == 1)  {
+        return 1;
+    } else if (section == 2)  {
+        return 1;
+    }  else {
+        return 3;
     } 
 }
 
 // 监听插件开关(新方法需要添加%new)
 %new
 - (void)onSwitch:(UISwitch *)switchView {
-    [YLZLocationManager shareInstance].isOpen = switchView.isOn;
-    [YLZDefaults setBool:switchView.isOn forKey:YLZKey];
+    if (switchView.tag == 0) {
+        [YLZLocationManager shareInstance].isOpen = switchView.isOn;
+        [YLZDefaults setBool:switchView.isOn forKey:YLZKey];
+        if (!switchView.isOn) {
+            [YLZDefaults setBool:NO forKey:YLZSiteKey0];
+            [YLZDefaults setBool:NO forKey:YLZSiteKey1];
+            [YLZDefaults setBool:NO forKey:YLZSiteKey2];
+        }
+    } else {
+        if (switchView.tag == 1) {
+            //易联众信息技术股份有限公司位置:
+            NSString *latitudeString = @"24.48591012";
+            NSString *longitudeString = @"118.17774973";
+            if (switchView.isOn) {
+               [YLZLocationManager shareInstance].coordinate = CLLocationCoordinate2DMake([latitudeString doubleValue], [longitudeString doubleValue]); 
+            }
+            [YLZDefaults setBool:switchView.isOn forKey:YLZSiteKey0];
+            [YLZDefaults setBool:NO forKey:YLZSiteKey1];
+            [YLZDefaults setBool:NO forKey:YLZSiteKey2];
+        } else if (switchView.tag == 2) {
+            //厦门北站:
+            NSString *latitudeString = @"24.63589400";
+            NSString *longitudeString = @"118.07418400";
+            if (switchView.isOn) {
+               [YLZLocationManager shareInstance].coordinate = CLLocationCoordinate2DMake([latitudeString doubleValue], [longitudeString doubleValue]); 
+            }
+            [YLZDefaults setBool:NO forKey:YLZSiteKey0];
+            [YLZDefaults setBool:switchView.isOn forKey:YLZSiteKey1];
+            [YLZDefaults setBool:NO forKey:YLZSiteKey2];
+        } else {
+            //SM城市广场(宝岛眼镜):
+            NSString *latitudeString = @"24.50076200";
+            NSString *longitudeString = @"118.12739500";
+            if (switchView.isOn) {
+               [YLZLocationManager shareInstance].coordinate = CLLocationCoordinate2DMake([latitudeString doubleValue], [longitudeString doubleValue]); 
+            }
+            [YLZDefaults setBool:NO forKey:YLZSiteKey0];
+            [YLZDefaults setBool:NO forKey:YLZSiteKey1];
+            [YLZDefaults setBool:switchView.isOn forKey:YLZSiteKey2];
+        }
+    }
     [YLZDefaults synchronize];
+    UITableView *tableView = [(UITableView *)self valueForKey:@"tableView"];
+    [tableView reloadData];
+}
+
+%new
+- (UITableViewCell *)fireTableViewCellWith:(NSString *)cellId withSwitchOn:(BOOL)switchOn withTitleString:(NSString *)titleString withTag:(NSInteger)tag withTableView:(UITableView *)tableView {
+    UITableViewCell *cell = [tableView 
+       dequeueReusableCellWithIdentifier:cellId];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] 
+        initWithStyle:UITableViewCellStyleDefault 
+        reuseIdentifier:cellId];
+        cell.backgroundColor = [UIColor whiteColor];
+    }
+    cell.textLabel.text = titleString;
+    // 开关
+    UISwitch *switchView = [[UISwitch alloc] init];
+    switchView.on = switchOn;
+    switchView.tag = tag;
+    BOOL isOpen = [YLZDefaults boolForKey:YLZKey];
+    if (tag != 0) {
+        switchView.hidden = !isOpen;
+    }
+    [switchView addTarget:self 
+      action:@selector(onSwitch:) 
+      forControlEvents:UIControlEventValueChanged];
+    cell.accessoryView = switchView;
+    return cell;
 }
 
 // 返回每一行的cell
 - (id)tableView:(id)tableView cellForRowAtIndexPath:(id)indexPath
 {
-    if ([indexPath section] == 1 && [indexPath row] == 1) {
-        NSString *cellId = @"switchCellId";
-        UITableViewCell *cell = [tableView 
-           dequeueReusableCellWithIdentifier:cellId];
-        if (cell == nil) {
-            cell = [[UITableViewCell alloc] 
-            initWithStyle:UITableViewCellStyleDefault 
-            reuseIdentifier:cellId];
-            cell.backgroundColor = [UIColor whiteColor];
+    if ([indexPath section] == 2) {
+        return [self fireTableViewCellWith:@"switchCellId" withSwitchOn:[YLZDefaults boolForKey:YLZKey] withTitleString:@"打卡插件开关" withTag:0 withTableView:tableView];
+    } if ([indexPath section] == 3) {
+        BOOL isOpen = [YLZDefaults boolForKey:YLZKey];
+        if ([indexPath row] == 0) {
+            return [self fireTableViewCellWith:@"CellId0" withSwitchOn:isOpen ? [YLZDefaults boolForKey:YLZSiteKey0] : NO withTitleString:@"易联众技术股份有限公司" withTag:1 withTableView:tableView];
+        } else if ([indexPath row] == 1) {
+            return [self fireTableViewCellWith:@"CellId1" withSwitchOn:isOpen ? [YLZDefaults boolForKey:YLZSiteKey1] : NO withTitleString:@"厦门北站" withTag:2 withTableView:tableView];
+        } else {
+            return [self fireTableViewCellWith:@"CellId2" withSwitchOn:isOpen ? [YLZDefaults boolForKey:YLZSiteKey2] : NO withTitleString:@"SM城市广场(宝岛眼镜)" withTag:3 withTableView:tableView];
         }
-        cell.textLabel.text = @"打卡插件开关";
-        // 开关
-        UISwitch *switchView = [[UISwitch alloc] init];
-        switchView.on = [YLZDefaults boolForKey:YLZKey];
-        [switchView addTarget:self 
-          action:@selector(onSwitch:) 
-          forControlEvents:UIControlEventValueChanged];
-        cell.accessoryView = switchView;
-        return cell;
     }
     return %orig;
 }
@@ -112,13 +188,17 @@ static NSString *longitudeString = @"118.17863";
 // 点击的监听
 - (void)tableView:(id)tableView didSelectRowAtIndexPath:(id)indexPath
 {
-    
-    if ([indexPath section] == 1 && [indexPath row] == 1) {
-        [tableView deselectRowAtIndexPath:indexPath animated:YES];
-        return; 
-    } else {
+    if ([indexPath section] == 0) {
         %orig;
-    }
+    } else if ([indexPath section] == 1)  {
+        %orig;
+    } else if ([indexPath section] == 2)  {
+        [tableView deselectRowAtIndexPath:indexPath animated:YES];
+        return;
+    }  else {
+        [tableView deselectRowAtIndexPath:indexPath animated:YES];
+        return;
+    } 
     
 }
 
@@ -128,7 +208,6 @@ static NSString *longitudeString = @"118.17863";
 
 - (void)viewDidLoad {
     %orig;
-    [YLZLocationManager shareInstance].coordinate = CLLocationCoordinate2DMake([latitudeString doubleValue], [longitudeString doubleValue]);
 }
 
 %end
