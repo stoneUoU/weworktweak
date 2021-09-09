@@ -59,10 +59,21 @@
 
 - (void)viewDidLoad {
     %orig;
-    NSString *latitudeString = @"24.48591012";
-    NSString *longitudeString = @"118.17774973";
-    [YLZLocationManager shareInstance].coordinate = CLLocationCoordinate2DMake([latitudeString doubleValue], [longitudeString doubleValue]);
     [YLZLocationManager shareInstance].isOpen = [YLZDefaults boolForKey:YLZKey];
+    NSString *latitudeString = @"";
+    NSString *longitudeString = @"";
+    //设置打卡位置
+    if ([YLZDefaults boolForKey:YLZSiteKey0]) {
+        latitudeString = @"24.48591012";
+        longitudeString = @"118.17774973";
+    } else if ([YLZDefaults boolForKey:YLZSiteKey1]) {
+        latitudeString = @"24.63589400";
+        longitudeString = @"118.07418400";
+    } else if ([YLZDefaults boolForKey:YLZSiteKey2]) {
+        latitudeString = @"24.50076200";
+        longitudeString = @"118.12739500";
+    }
+    [YLZLocationManager shareInstance].coordinate = CLLocationCoordinate2DMake([latitudeString doubleValue], [longitudeString doubleValue]); 
 }
 
 // 一共有多少组
@@ -169,11 +180,11 @@
     } if ([indexPath section] == 3) {
         BOOL isOpen = [YLZDefaults boolForKey:YLZKey];
         if ([indexPath row] == 0) {
-            return [self fireTableViewCellWith:@"CellId0" withSwitchOn:isOpen ? [YLZDefaults boolForKey:YLZSiteKey0] : NO withTitleString:@"易联众技术股份有限公司" withTag:1 withTableView:tableView];
+            return [self fireTableViewCellWith:@"switchCellId" withSwitchOn:isOpen ? [YLZDefaults boolForKey:YLZSiteKey0] : NO withTitleString:@"易联众技术股份有限公司" withTag:1 withTableView:tableView];
         } else if ([indexPath row] == 1) {
-            return [self fireTableViewCellWith:@"CellId1" withSwitchOn:isOpen ? [YLZDefaults boolForKey:YLZSiteKey1] : NO withTitleString:@"厦门北站" withTag:2 withTableView:tableView];
+            return [self fireTableViewCellWith:@"switchCellId" withSwitchOn:isOpen ? [YLZDefaults boolForKey:YLZSiteKey1] : NO withTitleString:@"厦门北站" withTag:2 withTableView:tableView];
         } else {
-            return [self fireTableViewCellWith:@"CellId2" withSwitchOn:isOpen ? [YLZDefaults boolForKey:YLZSiteKey2] : NO withTitleString:@"SM城市广场(宝岛眼镜)" withTag:3 withTableView:tableView];
+            return [self fireTableViewCellWith:@"switchCellId" withSwitchOn:isOpen ? [YLZDefaults boolForKey:YLZSiteKey2] : NO withTitleString:@"SM城市广场(宝岛眼镜)" withTag:3 withTableView:tableView];
         }
     }
     return %orig;
@@ -198,8 +209,7 @@
     }  else {
         [tableView deselectRowAtIndexPath:indexPath animated:YES];
         return;
-    } 
-    
+    }   
 }
 
 %end
@@ -273,55 +283,6 @@
     %orig;
     self.mapImageView.backgroundColor = [UIColor yellowColor]; 
     self.mapView.backgroundColor = [UIColor yellowColor]; 
-};
-
-- (void)displayLocation:(id)arg1 {
-    %orig;
-    // self.backgroundColor = [UIColor blueColor]
-    self.locationSubTitleLabel.text = @"XXX公司";
-    self.locationSubTitleLabel.textColor = [UIColor redColor];
-};
-
-- (void)mapView:(id)arg1 didUpdateUserLocation:(id)arg2 updatingLocation:(_Bool)arg3 {
-    %orig;
-    self.locationSubTitleLabel.text = @"XXX公司";
-    self.locationSubTitleLabel.textColor = [UIColor redColor];
-}
-
-- (void)p_onlocatingTitleTimerReached {
-    %orig;
-    if (self.locationSubTitleLabel != nil) {
-        self.locationSubTitleLabel.text = @"XXX公司";
-        self.locationSubTitleLabel.textColor = [UIColor redColor];
-    }
-};
-- (void)locationManager:(id)arg1 didChangeAuthorizationStatus:(int)arg2 {
-    %orig;
-    if (self.locationSubTitleLabel != nil) {
-        self.locationSubTitleLabel.text = @"XXX公司";
-        self.locationSubTitleLabel.textColor = [UIColor redColor];
-    }
-};
-- (void)updateViews {
-    %orig;
-    if (self.locationSubTitleLabel != nil) {
-        self.locationSubTitleLabel.text = @"XXX公司";
-        self.locationSubTitleLabel.textColor = [UIColor redColor];
-    }
-};
-- (void)p_updateAdditionView {
-    %orig;
-    if (self.locationSubTitleLabel != nil) {
-        self.locationSubTitleLabel.text = @"XXX公司";
-        self.locationSubTitleLabel.textColor = [UIColor redColor];
-    }
-};
-- (void)startRetrieverResultHandler:(id)arg1 {
-    %orig;
-    if (self.locationSubTitleLabel != nil) {
-        self.locationSubTitleLabel.text = @"XXX公司";
-        self.locationSubTitleLabel.textColor = [UIColor redColor];
-    }
 };
 
 %end
